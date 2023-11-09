@@ -10,6 +10,10 @@ async function bootstrap() {
   const servicePort = config.get<string>('SERVICE_PORT', '3000');
   const NODE_ENV = config.get<string>('NODE_ENV', 'development');
 
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
   await swagger(app);
 

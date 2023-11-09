@@ -61,18 +61,9 @@ export class AuthService {
         return await this.generateAccessToken(user);
     }
 
-    // async generateGoogleAccessToken(user: Express.User): Promise<string> {
-    //     return await this.jwtService.signAsync(
-    //         user,
-    //         {
-    //             secret: this.configService.get('ACCESS_TOKEN_SECRET'),
-    //             expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRES_IN'),
-    //         });
-    // }
-
     async generateAccessToken(user: Express.User): Promise<string> {
         return await this.jwtService.signAsync(
-            { username: user.username, email: user.email },
+            { user },
             {
                 secret: this.configService.get('JWT_SECRET'),
                 expiresIn: this.configService.get('JWT_EXPIRES_IN'),

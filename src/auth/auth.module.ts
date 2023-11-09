@@ -7,10 +7,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccessStrategy } from './strategies/access.strategy';
 import { User } from './user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Todo } from 'src/todo/todo.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Todo]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

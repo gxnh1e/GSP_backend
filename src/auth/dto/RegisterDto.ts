@@ -18,5 +18,5 @@ export class RegisterDto {
     description: 'Password of the user',
   })
   @IsString()
-  password?: string;
+  password!: string;
 }

@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { TodoService } from './todo.service';
-import { createTodoDto } from './dto/createTodo.dto';
-import { updateTodoDto } from './dto/updateTodo.dto';
+import { todoDto } from './dto/todo.dto';
 import { AccessGuard } from 'src/auth/guards/access.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 @Controller('todo')
 export class TodoController {
     constructor(private readonly todoService: TodoService) { }
@@ -11,51 +11,35 @@ export class TodoController {
     @Get()
     @ApiBearerAuth()
     @UseGuards(AccessGuard)
-    async getAllTodo() {
-        return await this.todoService.getAllTodo();
-    }
-
-    @Get(':id')
-    @ApiBearerAuth()
-    @UseGuards(AccessGuard)
-    async getTodo(
-        @Param(':id') id: number,
-    ) {
-        return await this.todoService.getTodo(id);
+    async getAllTodo(@Req() req: Request, @Res() res: Response) {
+        res.send(await this.todoService.getTodo(req.user));
     }
 
     @Post()
     @ApiBearerAuth()
     @UseGuards(AccessGuard)
-    async createTodo(@Body() createdTodoDto: createTodoDto) {
-        return await this.todoService.createTodo(createdTodoDto);
+    async createTodo(@Req() req:Request, @Body() todoDto: todoDto) {
+        return await this.todoService.createTodo(req.user, todoDto);
     }
 
-    @Put(':id')
+    @Post(':id')
     @ApiBearerAuth()
     @UseGuards(AccessGuard)
-    async updateTodo(
-        @Param(':id') id: number,
-        @Body() updateTodoDto: updateTodoDto,
-    ) {
-        return await this.todoService.updateTodo(id, updateTodoDto);
+    async updateTodo(@Req() req:Request, @Param(':id') id: number, @Body() todoDto: todoDto) {
+        return await this.todoService.updateTodo(req.user, todoDto, id);
     }
 
-    @Delete(':id')
+    @Get(':id')
     @ApiBearerAuth()
     @UseGuards(AccessGuard)
-    async deleteTodo(
-        @Param(':id') id: number,
-    ) {
-        return await this.todoService.deleteTodo(id);
+    async deleteTodo(@Req() req: Request, @Param(':id') id: number) {
+        return await this.todoService.deleteTodo(req.user, id);
     }
 
-    @Put('complete/:id')
+    @Get('complete/:id')
     @ApiBearerAuth()
     @UseGuards(AccessGuard)
-    async completeTodo(
-        @Param(':id') id: number,
-    ) {
-        return await this.todoService.completeTodo(id);
+    async completeTodo(@Req() req:Request, @Param(':id') id: number,) {
+        return await this.todoService.completeTodo(req.user, id);
     }
 }

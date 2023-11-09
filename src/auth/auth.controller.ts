@@ -24,22 +24,24 @@ export class AuthController {
     ) { }
 
     @Post('/register')
-    async register(@Body() registerDto: RegisterDto) {
-        const accessToken = this.authService.register(registerDto);
+    async register(@Res() res: Response, @Body() registerDto: RegisterDto) {
+        const accessToken = await this.authService.register(registerDto);
 
-        return accessToken;
+        res.cookie('ACCESS_TOKEN', accessToken);
+        res.send(accessToken);
     }
 
     @Post('/login')
-    async login(@Body() loginDto: LoginDto) {
-        const accessToken = this.authService.login(loginDto);
+    async login(@Res() res: Response, @Body() loginDto: LoginDto) {
+        const accessToken = await this.authService.login(loginDto);
 
-        return accessToken;
+        res.cookie('ACCESS_TOKEN', accessToken);
+        res.send(accessToken);
     }
 
     @Get('/google')
     @UseGuards(GoogleGuard)
-    googleAuth() {}
+    googleAuth() { }
 
     @Get('/google/callback')
     @UseGuards(GoogleGuard)
@@ -47,19 +49,19 @@ export class AuthController {
         if (!req.user) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
-        const front_url = this.config.get('FRONT_URL_2')
+        const front_url = this.config.get('FRONT_URL');
 
         const accessToken = this.authService.generateAccessToken(req.user);
-        
+
         res.cookie('ACCESS_TOKEN', accessToken);
         res.redirect(front_url);
     }
+
     @Get('/logout')
     @UseGuards(GoogleGuard)
-    async logout(@Req() req: Request, @Res() res: Response) {
+    async logout(@Res() res: Response) {
         const front_url = this.config.get('FRONT_URL')
 
-        console.log('logout')
         res.clearCookie('ACCESS_TOKEN');
         res.redirect(front_url);
     }

@@ -7,4 +7,3 @@ const validateEmail = (email: string) => {
   const validatePassword = (password: string) => password.length >= 8;
   
   export { validateEmail, validatePassword };
-  

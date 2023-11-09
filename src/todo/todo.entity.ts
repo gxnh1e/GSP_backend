@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/auth/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Todo {
@@ -13,4 +14,8 @@ export class Todo {
     
     @Column('boolean', { default: false })
     isDone!: boolean;
+    
+    @ManyToOne(() => User, (user) => user.todos)
+    @JoinColumn()
+    user: User;
 }
