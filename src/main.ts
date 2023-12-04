@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { swagger } from './swagger'
+import { swagger } from './swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
@@ -11,7 +11,7 @@ async function bootstrap() {
   const NODE_ENV = config.get<string>('NODE_ENV', 'development');
 
   app.enableCors({
-    origin: true,
+    origin: config.get<string>('CORS_ORIGIN', '*'),
     credentials: true,
   });
 
