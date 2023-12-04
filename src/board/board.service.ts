@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -40,7 +40,7 @@ export class BoardService {
   async find(id: string) {
     const board = await this.boardRepository.findOne({ where: { id } });
     if (!board) {
-      throw new Error('Board not found');
+      throw new HttpException('Board not found', HttpStatus.NOT_FOUND);
     }
     return board;
   }
@@ -55,13 +55,13 @@ export class BoardService {
       relations: ['user'],
     });
     if (!board) {
-      throw new Error('Board not found');
+      throw new HttpException('Board not found', HttpStatus.NOT_FOUND);
     }
 
     const { username } = user;
     const boardUsernme = board.user.username;
     if (boardUsernme !== username) {
-      throw new Error('User not authorized');
+      throw new HttpException('User not authorized', HttpStatus.UNAUTHORIZED);
     }
 
     board.title = title;
@@ -72,13 +72,13 @@ export class BoardService {
   async remove(user: Express.User, id: string) {
     const board = await this.boardRepository.findOne({ where: { id } });
     if (!board) {
-      throw new Error('Board not found');
+      throw new HttpException('Board not found', HttpStatus.NOT_FOUND);
     }
 
     const { username } = user;
     const boardUsernme = board.user.username;
     if (boardUsernme !== username) {
-      throw new Error('User not authorized');
+      throw new HttpException('User not authorized', HttpStatus.UNAUTHORIZED);
     }
     await this.boardRepository.remove(board);
   }
@@ -86,7 +86,7 @@ export class BoardService {
   async like(id: string) {
     const board = await this.boardRepository.findOne({ where: { id } });
     if (!board) {
-      throw new Error('Board not found');
+      throw new HttpException('Board not found', HttpStatus.NOT_FOUND);
     }
 
     board.likes += 1;

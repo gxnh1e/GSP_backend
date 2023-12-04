@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
@@ -19,10 +19,10 @@ export class AuthService {
     const _user = await this.userPepository.findOne({ where: { email } });
 
     if (_user) {
-      throw new Error('User already exists');
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
 
-    const newUser = await this.userPepository.create({ username, email });
+    const newUser = await this.userPepository.create({ email, username });
     await this.userPepository.save(newUser);
   }
 
@@ -30,7 +30,7 @@ export class AuthService {
     const { email } = user;
     const _user = await this.userPepository.findOne({ where: { email } });
     if (!_user) {
-      throw new Error('User not found');
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     return user;

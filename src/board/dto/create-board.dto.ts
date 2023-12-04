@@ -15,5 +15,5 @@ export class CreateBoardDto {
     description: 'likes',
     default: 0,
   })
-  likes!: number;
+  likes?: number;
 }
