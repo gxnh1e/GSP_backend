@@ -18,7 +18,9 @@ export class Board {
   @Column()
   description: string;
 
-  @Column()
+  @Column('int', {
+    default: 0,
+  })
   likes: number;
 
   @CreateDateColumn()
