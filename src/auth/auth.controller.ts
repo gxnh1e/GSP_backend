@@ -12,6 +12,7 @@ import { GoogleGuard } from './guards/google.guard';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { AccessGuard } from './guards/access.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +23,7 @@ export class AuthController {
 
   @Get('/profile')
   @ApiBearerAuth()
-  @UseGuards(GoogleGuard)
+  @UseGuards(AccessGuard)
   async profile(@Req() req: Request) {
     this.authService.getUserProfile(req.user);
   }
