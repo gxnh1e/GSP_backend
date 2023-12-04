@@ -41,13 +41,10 @@ export class AuthService {
     if (_user) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
-    const accessToken = await this.generateAccessToken(user);
     const newUser = await this.userPepository.create({
       email,
       username,
-      accessToken,
     });
     await this.userPepository.save(newUser);
-    return accessToken;
   }
 }

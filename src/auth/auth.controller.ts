@@ -33,13 +33,13 @@ export class AuthController {
 
   @Get('/google/callback')
   @UseGuards(GoogleGuard)
-  googleLogin(@Req() req: Request, @Res() res: Response) {
+  async googleLogin(@Req() req: Request, @Res() res: Response) {
     if (!req.user) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
     const front_url = this.config.get('FRONT_URL');
-
-    const accessToken = this.authService.saveUser(req.user);
+    await this.authService.saveUser(req.user);
+    const accessToken = await this.authService.generateAccessToken(req.user);
 
     res.cookie('ACCESS_TOKEN', accessToken);
     res.redirect(front_url);
