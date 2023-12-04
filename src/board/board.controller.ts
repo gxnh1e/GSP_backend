@@ -16,6 +16,7 @@ import { UpdateBoardDto } from './dto/update-board.dto';
 import { Request } from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AccessGuard } from 'src/auth/guards/access.guard';
+import { GoogleGuard } from 'src/auth/guards/google.guard';
 
 @Controller('board')
 export class BoardController {

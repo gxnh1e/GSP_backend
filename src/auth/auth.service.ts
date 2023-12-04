@@ -14,18 +14,6 @@ export class AuthService {
     private userPepository: Repository<User>,
   ) {}
 
-  async saveUser(user: Express.User) {
-    const { username, email } = user;
-    const _user = await this.userPepository.findOne({ where: { email } });
-
-    if (_user) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
-    }
-
-    const newUser = await this.userPepository.create({ email, username });
-    await this.userPepository.save(newUser);
-  }
-
   async getUserProfile(user: Express.User) {
     const { email } = user;
     const _user = await this.userPepository.findOne({ where: { email } });
@@ -37,7 +25,6 @@ export class AuthService {
   }
 
   async generateAccessToken(user: Express.User): Promise<string> {
-    await this.saveUser(user);
     return await this.jwtService.signAsync(
       { user },
       {
@@ -45,5 +32,22 @@ export class AuthService {
         expiresIn: this.configService.get('JWT_EXPIRES_IN'),
       },
     );
+  }
+
+  async saveUser(user: Express.User) {
+    const { username, email } = user;
+    const _user = await this.userPepository.findOne({ where: { email } });
+
+    if (_user) {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+    const accessToken = await this.generateAccessToken(user);
+    const newUser = await this.userPepository.create({
+      email,
+      username,
+      accessToken,
+    });
+    await this.userPepository.save(newUser);
+    return accessToken;
   }
 }

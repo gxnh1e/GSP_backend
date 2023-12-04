@@ -9,6 +9,9 @@ export class User {
   @Column()
   username: string;
 
+  @Column()
+  accessToken: string;
+
   @OneToMany(() => Board, (board) => board.user)
   boards: Board;
 }
