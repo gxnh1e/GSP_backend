@@ -19,6 +19,13 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly config: ConfigService,
   ) {}
+
+  @Get('/profile')
+  @ApiBearerAuth()
+  @UseGuards(GoogleGuard)
+  async profile(@Req() req: Request) {
+    this.authService.getUserProfile(req.user);
+  }
   @Get('/google')
   @UseGuards(GoogleGuard)
   // eslint-disable-next-line @typescript-eslint/no-empty-function

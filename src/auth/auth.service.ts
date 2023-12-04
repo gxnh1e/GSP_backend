@@ -16,7 +16,7 @@ export class AuthService {
 
   async saveUser(user: Express.User) {
     const { username, email } = user;
-    const _user = await this.userPepository.findOneBy({ email });
+    const _user = await this.userPepository.findOne({ where: { email } });
 
     if (_user) {
       throw new Error('User already exists');
@@ -24,6 +24,16 @@ export class AuthService {
 
     const newUser = await this.userPepository.create({ username, email });
     await this.userPepository.save(newUser);
+  }
+
+  async getUserProfile(user: Express.User) {
+    const { email } = user;
+    const _user = await this.userPepository.findOne({ where: { email } });
+    if (!_user) {
+      throw new Error('User not found');
+    }
+
+    return user;
   }
 
   async generateAccessToken(user: Express.User): Promise<string> {
