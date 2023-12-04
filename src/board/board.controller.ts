@@ -15,7 +15,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { Request } from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GoogleGuard } from 'src/auth/guards/google.guard';
+import { AccessGuard } from 'src/auth/guards/access.guard';
 
 @Controller('board')
 export class BoardController {
@@ -23,14 +23,14 @@ export class BoardController {
 
   @Post('/create')
   @ApiBearerAuth()
-  @UseGuards(GoogleGuard)
+  @UseGuards(AccessGuard)
   createBoard(@Req() req: Request, @Body() createBoardDto: CreateBoardDto) {
     return this.boardService.create(req.user, createBoardDto);
   }
 
   @Get()
   @ApiBearerAuth()
-  @UseGuards(GoogleGuard)
+  @UseGuards(AccessGuard)
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   findAll(@Query('page') page: number = 1) {
     return this.boardService.pagenate(page);
@@ -38,14 +38,14 @@ export class BoardController {
 
   @Get(':id')
   @ApiBearerAuth()
-  @UseGuards(GoogleGuard)
+  @UseGuards(AccessGuard)
   findBoard(@Param('id') id: string) {
     return this.boardService.find(id);
   }
 
   @Put(':id')
   @ApiBearerAuth()
-  @UseGuards(GoogleGuard)
+  @UseGuards(AccessGuard)
   updateBoard(
     @Req() req: Request,
     @Param('id') id: string,
@@ -56,14 +56,14 @@ export class BoardController {
 
   @Delete(':id')
   @ApiBearerAuth()
-  @UseGuards(GoogleGuard)
+  @UseGuards(AccessGuard)
   removeBoard(@Req() req: Request, @Param('id') id: string) {
     return this.boardService.remove(req.user, id);
   }
 
   @Get('/like/:id')
   @ApiBearerAuth()
-  @UseGuards(GoogleGuard)
+  @UseGuards(AccessGuard)
   likeBoard(@Param('id') id: string) {
     return this.boardService.like(id);
   }
