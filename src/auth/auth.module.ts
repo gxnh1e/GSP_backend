@@ -2,16 +2,14 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { GoogleStrategy } from './strategies/google.strategy';
-import { JwtModule, JwtService } from '@nestjs/jwt'
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AccessStrategy } from './strategies/access.strategy';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Todo } from 'src/todo/todo.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Todo]),
+    TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -22,11 +20,6 @@ import { Todo } from 'src/todo/todo.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtService,
-    GoogleStrategy,
-    AccessStrategy,
-  ]
+  providers: [AuthService, JwtService, GoogleStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

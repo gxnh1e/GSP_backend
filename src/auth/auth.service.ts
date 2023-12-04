@@ -1,73 +1,39 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from './user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RegisterDto } from './dto/RegisterDto';
-import { validateEmail } from 'src/validation/auth';
-import { validatePassword } from 'src/validation/auth';
-import * as crypto from 'crypto';
-import { LoginDto } from './dto/LoginDto';
-
-function sha256(password: string) {
-    return crypto.createHash('sha256').update(password).digest('hex');
-}
+import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly jwtService: JwtService,
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-    ) { }
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+    @InjectRepository(User)
+    private userPepository: Repository<User>,
+  ) {}
 
-    async register({ email, username, password }: RegisterDto): Promise<string> {
-        const user = await this.userRepository.findOneBy({ email, username });
+  async saveUser(user: Express.User) {
+    const { username, email } = user;
+    const _user = await this.userPepository.findOneBy({ email });
 
-        if (user) {
-            throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
-        }
-
-        if (!validateEmail(email)) {
-            throw new HttpException('Invalid email', HttpStatus.BAD_REQUEST);
-        }
-
-        if (!validatePassword(password)) {
-            throw new HttpException('Invalid Password', HttpStatus.BAD_REQUEST);
-        }
-
-        const newUser = this.userRepository.create({
-            email,
-            username,
-            password: sha256(password),
-        });
-
-        await this.userRepository.save(newUser);
-        return await this.generateAccessToken(newUser);
+    if (_user) {
+      throw new Error('User already exists');
     }
 
-    async login({ username, password }: LoginDto): Promise<string> {
-        const user = await this.userRepository.findOneBy({ username });
+    const newUser = await this.userPepository.create({ username, email });
+    await this.userPepository.save(newUser);
+  }
 
-        if (!user) {
-            throw new HttpException('Invalid User', HttpStatus.BAD_REQUEST);
-        }
-        if (sha256(password) !== user.password) {
-            throw new HttpException('Invalid Password', HttpStatus.BAD_REQUEST);
-        }
-
-        return await this.generateAccessToken(user);
-    }
-
-    async generateAccessToken(user: Express.User): Promise<string> {
-        return await this.jwtService.signAsync(
-            { user },
-            {
-                secret: this.configService.get('JWT_SECRET'),
-                expiresIn: this.configService.get('JWT_EXPIRES_IN'),
-            },
-        )
-    }
+  async generateAccessToken(user: Express.User): Promise<string> {
+    await this.saveUser(user);
+    return await this.jwtService.signAsync(
+      { user },
+      {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: this.configService.get('JWT_EXPIRES_IN'),
+      },
+    );
+  }
 }

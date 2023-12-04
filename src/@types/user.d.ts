@@ -1,10 +1,11 @@
 declare global {
-    namespace Express {
-        export interface User extends ExtendUser { }
-    }
+  namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    export interface User extends ExtendUser {}
+  }
 }
 
 export interface ExtendUser {
-    email: string;
-    username: string;
+  username: string;
+  email: string;
 }

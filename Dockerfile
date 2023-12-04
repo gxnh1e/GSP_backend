@@ -5,6 +5,6 @@ WORKDIR /app
 
 COPY . .
 RUN npm
-RUN npm build
+RUN yarn build
 
-CMD [ "npm", "start" ]
+CMD [ "yarn", "start:prod"]

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database.module';
 import { ConfigModule } from '@nestjs/config';
-import { TodoModule } from './todo/todo.module';
+import { BoardModule } from './board/board.module';
 
 @Module({
   imports: [
@@ -12,9 +12,9 @@ import { TodoModule } from './todo/todo.module';
     }),
     AuthModule,
     DatabaseModule,
-    TodoModule,
+    BoardModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,68 +1,50 @@
 import {
-    Body,
-    Controller,
-    Get,
-    UseGuards,
-    Req,
-    Res,
-    HttpException,
-    HttpStatus,
-    Post
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Res,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/LoginDto';
-import { RegisterDto } from './dto/RegisterDto';
 import { GoogleGuard } from './guards/google.guard';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
-    constructor(
-        private authService: AuthService,
-        private readonly config: ConfigService
-    ) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly config: ConfigService,
+  ) {}
+  @Get('/google')
+  @UseGuards(GoogleGuard)
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  googleAuth() {}
 
-    @Post('/register')
-    async register(@Res() res: Response, @Body() registerDto: RegisterDto) {
-        const accessToken = await this.authService.register(registerDto);
-
-        res.cookie('ACCESS_TOKEN', accessToken);
-        res.send(accessToken);
+  @Get('/google/callback')
+  @UseGuards(GoogleGuard)
+  async googleLogin(@Req() req: Request, @Res() res: Response) {
+    if (!req.user) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
+    const front_url = this.config.get('FRONT_URL');
 
-    @Post('/login')
-    async login(@Res() res: Response, @Body() loginDto: LoginDto) {
-        const accessToken = await this.authService.login(loginDto);
+    const accessToken = this.authService.generateAccessToken(req.user);
 
-        res.cookie('ACCESS_TOKEN', accessToken);
-        res.send(accessToken);
-    }
+    res.cookie('ACCESS_TOKEN', accessToken);
+    res.redirect(front_url);
+  }
 
-    @Get('/google')
-    @UseGuards(GoogleGuard)
-    googleAuth() { }
+  @Get('/logout')
+  @ApiBearerAuth()
+  @UseGuards(GoogleGuard)
+  async logout(@Res() res: Response) {
+    const front_url = this.config.get('FRONT_URL');
 
-    @Get('/google/callback')
-    @UseGuards(GoogleGuard)
-    async googleLogin(@Req() req: Request, @Res() res: Response) {
-        if (!req.user) {
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-        }
-        const front_url = this.config.get('FRONT_URL');
-
-        const accessToken = this.authService.generateAccessToken(req.user);
-
-        res.cookie('ACCESS_TOKEN', accessToken);
-        res.redirect(front_url);
-    }
-
-    @Get('/logout')
-    @UseGuards(GoogleGuard)
-    async logout(@Res() res: Response) {
-        const front_url = this.config.get('FRONT_URL')
-
-        res.clearCookie('ACCESS_TOKEN');
-        res.redirect(front_url);
-    }
+    res.clearCookie('ACCESS_TOKEN');
+    res.redirect(front_url);
+  }
 }
